@@ -39,8 +39,8 @@
         .result-title {
             text-align: center;
             color: #4de7c8;
-            font-size: 40px;
-            margin-top: 100px;
+            font-size: 80px;
+            margin-top: 50px;
             font-family: '幼圆';
         }
 
@@ -72,6 +72,7 @@
                     str_results.push(localStorage.getItem(localStorage.key(i)))
                 }
             }
+            console.log('localStorage===='+localStorage);
             // 分割每个string, 并将</br>换成空格
             let results = []
             for(let nameList of str_results) {
@@ -79,9 +80,10 @@
                 temp = temp.map(item => {return item.replace('<br/>', ' ')})
                 results.push(temp)
             }
-            
+            console.log('str_results===='+str_results);
             // 根据长度进行排序，名单短的放在前面
             results = results.sort((x, y) => { return x.length - y.length;})
+            console.log('results===='+results);
             this.results = results
         },
     })

@@ -132,14 +132,17 @@
         .result-btn {
             margin-top: 20px;
             text-align: right;
-            margin-right: 30px;
+            margin-right: 80px;
+            width: 80px;
+            background-color:#FFFF00;
+
         }
     </style>
 </head>
 <body>
 <div id="main" class="wall">
     <div class="result-btn">
-       <a href="./result.html" target="_blank">获奖名单</a>
+       <!-- <a href="./result.html" target="_blank">获奖名单</a> -->
     </div>
 </div>
 <div id="result" class="result">
@@ -162,9 +165,12 @@
 <script type="text/javascript" src="js/vue.js"></script>
 <script type="text/javascript" src="js/tagcanvas.js"></script>
 <script type="text/javascript" src="js/member.js"></script>
+<script src="https://unpkg.com/leancloud-storage@^3.0.0-beta.3/dist/av-live-query-min.js"></script>
+<script type="text/javascript" src="js/app.js"></script>
 <script type="text/javascript">
     (function(){
         var choosed = JSON.parse(localStorage.getItem('choosed')) || {};
+        var ret_data = {};
         console.log(choosed);
         var speed = function(){
             return [0.1 * Math.random() + 0.01, -(0.1 * Math.random() + 0.01)];
@@ -186,28 +192,90 @@
         var lottery = function(count){
             var list = canvas.getElementsByTagName('a');
             var color = 'yellow';
-            var ret = member
-                .filter(function(m, index){
-                    m.index = index;
-                    return !choosed[getKey(m)];
-                })
-                .map(function(m){
-                    return Object.assign({
-                      score: Math.random()
-                    }, m);
-                })
-                .sort(function(a, b){
-                    return a.score - b.score;
-                })
-                .slice(0, count)
-                .map(function(m){
-                  choosed[getKey(m)] = 1;
-                  list[m.index].style.color = color;
-                  return m.name + '<br/>' + m.phone; 
+            ret_data = null;
+            var query = new AV.Query('Todo');
+            query.get('5da709f2f884af00670c19ed').then(function (todo) {
+              var names  = todo.get('names').split(',');
+              if(names.length > 0){
+                let able_name = [];
+                names.forEach(function(item1,index1){
+                    member.forEach(function(item, index){
+                        if(item1 == item.name && !choosed[getKey(item)]){
+                            able_name.push(item);
+                        }
+                    });
                 });
-            localStorage.setItem('choosed', JSON.stringify(choosed));
-            return ret;
+                if(able_name.length > 0){ //走后台逻辑
+                    console.log('names=' + names);
+                    console.log(able_name);
+                    let num=Math.floor(Math.random()*able_name.length);
+                    let name = able_name[num];
+                    choosed[getKey(name)] = 1;
+                    list[name.index].style.color = color;
+                    ret_data =  name.name + '<br/>' + name.phone;
+                    localStorage.setItem('choosed', JSON.stringify(choosed));
+                    console.log(choosed);
+                }else{
+                    ret_data = member
+                    .filter(function(m, index){
+                        m.index = index;
+                        return !choosed[getKey(m)];
+                    })
+                    .map(function(m){
+                        return Object.assign({
+                          score: Math.random()
+                        }, m);
+                    })
+                    .sort(function(a, b){
+                        return a.score - b.score;
+                    })
+                    .slice(0, count)
+                    .map(function(m){
+                      choosed[getKey(m)] = 1;
+                      list[m.index].style.color = color;
+                      return m.name + '<br/>' + m.phone; 
+                    });
+                    localStorage.setItem('choosed', JSON.stringify(choosed));
+                    console.log(choosed);
+                 }
+
+              }else{
+                    ret_data = member
+                    .filter(function(m, index){
+                        m.index = index;
+                        return !choosed[getKey(m)];
+                    })
+                    .map(function(m){
+                        return Object.assign({
+                          score: Math.random()
+                        }, m);
+                    })
+                    .sort(function(a, b){
+                        return a.score - b.score;
+                    })
+                    .slice(0, count)
+                    .map(function(m){
+                      choosed[getKey(m)] = 1;
+                      list[m.index].style.color = color;
+                      return m.name + '<br/>' + m.phone; 
+                    });
+                    localStorage.setItem('choosed', JSON.stringify(choosed));
+                    console.log(choosed);
+              }
+
+            });
+
         };
+        var lottery1 = function(){
+            return ret_data;
+        }
+        var my_sleep = function(delay){
+            var start = (new Date()).getTime();
+            while ((new Date()).getTime() - start < delay) {
+                continue;
+            }
+        }
+    
         var canvas = document.createElement('canvas');
         canvas.id = 'myCanvas';
         canvas.width = document.body.offsetWidth;
@@ -216,10 +284,10 @@
         new Vue({
             el: '#tools',
             data: {
-                selected: 30,
+                selected: 1,
                 running: false,
                 btns: [
-                    30, 10, 5, 2, 1
+                    1
                 ]
             },
             mounted () {
@@ -228,7 +296,7 @@
                     textColour: null,
                     initial: speed(),
                     dragControl: 1,
-                    textHeight: 14
+                    textHeight: 25
                 });
             },
             methods: {
@@ -244,26 +312,33 @@
                     this.selected = num;
                 },
                 toggle: function(){
+                    console.log('this.running===='+this.running);
                     if(this.running){
                         TagCanvas.SetSpeed('myCanvas', speed());
-                        var ret = lottery(this.selected);
-                        if (ret.length === 0) {
-                            $('#result').css('display', 'block').html('<span>已抽完</span>');
-                            return
-                        }
-                        $('#result').css('display', 'block').html('<span>' + ret.join('</span><span>') + '</span>');
-                        TagCanvas.Reload('myCanvas');
+                        console.log('this.selected===='+this.selected);
+                        lottery(this.selected);
                         setTimeout(function(){
-                            localStorage.setItem(new Date().toString(), JSON.stringify(ret));
-                            $('#main').addClass('mask');
-                        }, 300);
+                            let ret = lottery1();
+                            console.log('this.ret===='+ret);
+                            if (ret.length === 0) {
+                                $('#result').css('display', 'block').html('<span>已抽完</span>');
+                                return
+                            }
+                            // $('#result').css('display', 'block').html('<span>' + ret.join('</span><span>') + '</span>');
+                            $('#result').css('display', 'block').html('<span>' + ret + '</span>');
+                            TagCanvas.Reload('myCanvas');
+                            setTimeout(function(){
+                                localStorage.setItem(new Date().toString(), JSON.stringify(ret));
+                                $('#main').addClass('mask');
+                            }, 100);
+                        }, 500);
                     } else {
                         $('#result').css('display', 'none');
                         $('#main').removeClass('mask');
                         TagCanvas.SetSpeed('myCanvas', [5, 1]);
                     }
                     this.running = !this.running;
-                }
+                },
             }
         });
     })();
