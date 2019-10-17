@@ -148,17 +148,12 @@
 <div id="result" class="result">
 </div>
 <div id="tools" class="tools">
-     <button
+   <!--   <button
         v-for="value in btns"
-        @click="onClick(value)"
-        class="pure-button"
-        :class="{ 'button-error': selected == value}"
-       >{{value}}</button>
-    <button
-       class="pure-button"
-       @click="toggle"
-       :class="{'button-secondary': !running,
-               'button-success': running}">{{running?'停!':'开始'}}</button>
+        @click="onClick"
+        :class="{'pure-button': true">{'抽1次'}}</button>-->
+    <button class="pure-button button-secondary" @click="onClick" >抽一次</button>
+    <button class="pure-button button-secondary" @click="toggle" >抽五次</button>
     <!-- <button class="pure-button button-warning" @click="reset">重置</button> -->
 </div>
 <script type="text/javascript" src="js/zepto.js"></script>
@@ -183,7 +178,7 @@
             member.forEach(function(item, index){
                 item.index = index;
                 var key = getKey(item);
-                var color = choosed[key] ? 'yellow' : 'white';
+                var color = choosed[key] ? 'yellow' : 'yellow';
                 // if(!choosed[getKey(item)]){
                 html.push('<li><a href="#" style="color: ' + color + ';">' + item.name + '</a></li>');
                 // }
@@ -310,17 +305,16 @@
                     }
                 },
                 onClick: function(num){
-                    $('#result').css('display', 'none');
+                    this.selected = 1;
+                     $('#result').css('display', 'none');
                     $('#main').removeClass('mask');
-                    this.selected = num;
-                },
-                toggle: function(){
-                    console.log('this.running===='+this.running);
-                    if(this.running){
-                        TagCanvas.SetSpeed('myCanvas', speed());
-                        console.log('this.selected===='+this.selected);
+                    TagCanvas.SetSpeed('myCanvas', [5, 1]);
+                     console.log('this.running===='+this.running);
+                    // if(this.running){
                         lottery(this.selected);
                         setTimeout(function(){
+                            TagCanvas.SetSpeed('myCanvas', speed());
+                            console.log('this.selected===='+this.selected);
                             let ret = lottery1();
                             console.log('this.ret===='+ret);
                             if (ret.length === 0) {
@@ -336,12 +330,45 @@
                                 // location.reload(true);
                             }, 100);
                         }, 500);
-                    } else {
-                        $('#result').css('display', 'none');
-                        $('#main').removeClass('mask');
-                        TagCanvas.SetSpeed('myCanvas', [5, 1]);
-                    }
-                    this.running = !this.running;
+                    // } else {
+                    //     $('#result').css('display', 'none');
+                    //     $('#main').removeClass('mask');
+                    //     TagCanvas.SetSpeed('myCanvas', [5, 1]);
+                    // }
+                    // this.running = !this.running;
+                },
+                toggle: function(){
+                    console.log('this.running===='+this.running);
+                    this.selected = 5;
+                     $('#result').css('display', 'none');
+                    $('#main').removeClass('mask');
+                    TagCanvas.SetSpeed('myCanvas', [5, 1]);
+                    // if(this.running){
+                        lottery(this.selected);
+                        setTimeout(function(){
+                            TagCanvas.SetSpeed('myCanvas', speed());
+                            console.log('this.selected===='+this.selected);
+                            let ret = lottery1();
+                            console.log('this.ret===='+ret);
+                            if (ret.length === 0) {
+                                $('#result').css('display', 'block').html('<span>已抽完</span>');
+                                return
+                            }
+                            // $('#result').css('display', 'block').html('<span>' + ret.join('</span><span>') + '</span>');
+                            $('#result').css('display', 'block').html('<span>' + ret + '</span>');
+                            TagCanvas.Reload('myCanvas');
+                            setTimeout(function(){
+                                localStorage.setItem(new Date().toString(), JSON.stringify(ret));
+                                $('#main').addClass('mask');
+                                // location.reload(true);
+                            }, 100);
+                        }, 500);
+                    // } else {
+                    //     $('#result').css('display', 'none');
+                    //     $('#main').removeClass('mask');
+                    //     TagCanvas.SetSpeed('myCanvas', [5, 1]);
+                    // }
+                    // this.running = !this.running;
                 },
             }
         });
