@@ -184,7 +184,9 @@
                 item.index = index;
                 var key = getKey(item);
                 var color = choosed[key] ? 'yellow' : 'white';
+                // if(!choosed[getKey(item)]){
                 html.push('<li><a href="#" style="color: ' + color + ';">' + item.name + '</a></li>');
+                // }
             });
             html.push('</ul>');
             return html.join('');
@@ -287,7 +289,7 @@
                 selected: 1,
                 running: false,
                 btns: [
-                    1
+                    1,5
                 ]
             },
             mounted () {
@@ -331,6 +333,7 @@
                             setTimeout(function(){
                                 localStorage.setItem(new Date().toString(), JSON.stringify(ret));
                                 $('#main').addClass('mask');
+                                // location.reload(true);
                             }, 100);
                         }, 500);
                     } else {
