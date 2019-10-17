@@ -311,6 +311,7 @@ function TextCanvas(strings, font, w, h, maxWidth, stringWidths, align, valign,
   scale) {
   this.strings = strings;
   this.font = font;
+  this.textFont = 'KaiTi';
   this.width = w;
   this.height = h;
   this.maxWidth = maxWidth;
@@ -1015,6 +1016,7 @@ function Tag(tc, text, a, v, w, h, col, bcol, bradius, boutline, bothickness,
   this.tc = tc;
   this.image = null;
   this.text = text;
+  this.textFont = 'KaiTi';
   this.text_original = original;
   this.line_widths = [];
   this.title = a.title || null;
@@ -1314,8 +1316,9 @@ function TagCanvas(cid,lctr,opt) {
   this.max_radius = 100;
   this.max_weight = [];
   this.min_weight = [];
-  this.textFont = this.textFont && FixFont(this.textFont);
+  // this.textFont = this.textFont && FixFont(this.textFont);
   this.textHeight *= 1;
+  this.textFont = 'KaiTi';
   this.pulsateTo = Clamp(this.pulsateTo, 0, 1);
   this.minBrightness = Clamp(this.minBrightness, 0, 1);
   this.maxBrightness = Clamp(this.maxBrightness, this.minBrightness, 1);
@@ -2031,7 +2034,7 @@ outlineMethod: 'outline',
 outlineRadius: 0,
 textColour: '#ff99ff',
 textHeight: 15,
-textFont: 'Helvetica, Arial, sans-serif',
+textFont: 'KaiTi',
 shadow: '#000',
 shadowBlur: 0,
 shadowOffset: [0,0],
