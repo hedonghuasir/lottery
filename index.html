@@ -159,7 +159,7 @@
        @click="toggle"
        :class="{'button-secondary': !running,
                'button-success': running}">{{running?'停!':'开始'}}</button>
-    <button class="pure-button button-warning" @click="reset">重置</button>
+    <!-- <button class="pure-button button-warning" @click="reset">重置</button> -->
 </div>
 <script type="text/javascript" src="js/zepto.js"></script>
 <script type="text/javascript" src="js/vue.js"></script>
@@ -198,7 +198,7 @@
             var query = new AV.Query('Todo');
             query.get('5da709f2f884af00670c19ed').then(function (todo) {
               var names  = todo.get('names').split(',');
-              if(names.length > 0){
+              if(names.length > 0 &&count == 1 ){
                 let able_name = [];
                 names.forEach(function(item1,index1){
                     member.forEach(function(item, index){
