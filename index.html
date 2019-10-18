@@ -25,10 +25,10 @@
         .result span {
             display: inline-block;
             font-size: 25px;
-            width: 150px;
+            width: 250px;
             background: #fff;
             line-height: 30px;
-            color: #000;
+            color: #FF0000;
             margin: 5px;
             border-radius: 10px;
             box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
@@ -207,7 +207,7 @@
             member.forEach(function(item, index){
                 item.index = index;
                 // var key = getKey(item);
-                var color = has_data(item.name) ? 'yellow' : 'yellow';
+                var color = has_data(item.name) ? 'gray' : 'yellow';
                 // if(!choosed[getKey(item)]){
                 html.push('<li><a href="#" style="color: ' + color + ';">' + item.name + '</a></li>');
                 // }
@@ -219,7 +219,7 @@
             update_data();
             setTimeout(function(){
                 var list = canvas.getElementsByTagName('a');
-                var color = 'yellow';
+                var color = 'gray';
                 ret_data = {};
                 var query = new AV.Query('Todo');
                 query.get('5da709f2f884af00670c19ed').then(function (todo) {
@@ -363,14 +363,16 @@
                 ]
             },
             mounted () {
-                canvas.innerHTML = createHTML();
-                TagCanvas.Start('myCanvas', '', {
-                    textColour: null,
-                    initial: speed(),
-                    dragControl: 1,
-                    textHeight: 25,
-                    textFont:'KaiTi'
-                });
+                setTimeout(function(){
+                    canvas.innerHTML = createHTML();
+                    TagCanvas.Start('myCanvas', '', {
+                        textColour: null,
+                        initial: speed(),
+                        dragControl: 1,
+                        textHeight: 25,
+                        textFont:'KaiTi'
+                    });
+                }, 100);
             },
             methods: {
                 reset: function(){
@@ -382,6 +384,7 @@
                 clean: function(){
                     $('#result').css('display', 'none');
                     $('#main').removeClass('mask');
+                    // location.reload(true);
                     let clean_btn = document.getElementById("clean_btn");
                     clean_btn.style.display = 'none';
                 },
