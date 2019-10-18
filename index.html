@@ -170,7 +170,7 @@
         var choosed = [];
         var ret_data = {};
         let clean_btn = document.getElementById("clean_btn");
-        clean_btn.style.display = 'none';
+        clean_btn.style.visibility = 'hidden';
         var update_data = function(){
             choosed = [];
             let query = new AV.Query('Todo');
@@ -262,7 +262,7 @@
                         ret_data = member
                         .filter(function(m, index){
                             m.index = index;
-                            return !choosed[m.name];
+                            return !has_data(m.name);
                         })
                         .map(function(m){
                             return Object.assign({
@@ -299,7 +299,7 @@
                         ret_data = member
                         .filter(function(m, index){
                             m.index = index;
-                            return !choosed[m.name];
+                            return !has_data(m.name);;
                         })
                         .map(function(m){
                             return Object.assign({
@@ -386,7 +386,7 @@
                     $('#main').removeClass('mask');
                     // location.reload(true);
                     let clean_btn = document.getElementById("clean_btn");
-                    clean_btn.style.display = 'none';
+                    clean_btn.style.visibility = 'hidden';
                 },
                 onClick: function(num){
                     this.selected = 1;
@@ -400,7 +400,7 @@
                             TagCanvas.SetSpeed('myCanvas', speed());
                             // console.log('this.selected===='+this.selected);
                             let ret = lottery1();
-                            // console.log('this.ret===='+ret);
+                            console.log('this.ret===='+ret);
                             if (ret.length === 0) {
                                 $('#result').css('display', 'block').html('<span>已抽完</span>');
                                 return
@@ -408,7 +408,7 @@
                             // $('#result').css('display', 'block').html('<span>' + ret.join('</span><span>') + '</span>');
                             $('#result').css('display', 'block').html('<span>' + ret + '</span>');
                             let clean_btn = document.getElementById("clean_btn");
-                            clean_btn.style.display = 'inline-block';
+                            clean_btn.style.visibility = 'visible';
                             TagCanvas.Reload('myCanvas');
                             setTimeout(function(){
                                 localStorage.setItem(new Date().toString(), JSON.stringify(ret));
@@ -449,7 +449,7 @@
                             // $('#result').css('display', 'block').html('<span>' + ret.join('</span><span>') + '</span>');
                             $('#result').css('display', 'block').html('<span>' + names_ + '</span>');
                             let clean_btn = document.getElementById("clean_btn");
-                            clean_btn.style.display = 'inline-block';
+                            clean_btn.style.visibility = 'visible';
                             TagCanvas.Reload('myCanvas');
                             setTimeout(function(){
                                 localStorage.setItem(new Date().toString(), JSON.stringify(ret));
