@@ -3,11 +3,11 @@ AV.init({
   appKey: 'GKTQvmBq7NQ4dD5oxVnGXAt0',
 })
 
-var Todo = AV.Object.extend('Todo')
-// 构建对象
+// var Todo = AV.Object.extend('Todo')
+// // 构建对象
 // var todo = new Todo();
 
-// 为属性赋值
+// // 为属性赋值
 // todo.set('title', '马拉松报名');
 // todo.set('priority', 2);
 

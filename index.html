@@ -164,9 +164,35 @@
 <script type="text/javascript" src="js/app.js"></script>
 <script type="text/javascript">
     (function(){
-        var choosed = JSON.parse(localStorage.getItem('choosed')) || {};
+
+        // var choosed = JSON.parse(localStorage.getItem('choosed')) || {};
+        var choosed = [];
         var ret_data = {};
-        console.log(choosed);
+        var update_data = function(){
+            choosed = [];
+            let query = new AV.Query('Todo');
+            query.get('5da709f2f884af00670c19ed').then(function (todo) {            
+                let lottery_names  = todo.get('lottery_names').split(",");
+                // console.log("lottery_names==="+lottery_names);
+                // console.log("lottery_names=1=="+lottery_names.length);
+                lottery_names.forEach(function(item, index){
+                    if(item != ""){
+                        choosed.push(item);
+                    }
+                });
+                // console.log(choosed);
+            });
+        };
+        var has_data = function(name){
+            for(let index = 0;index < choosed.length;index ++){
+                // console.log("has_data==="+choosed[index]+"===name=="+name);
+                if(choosed[index] == name){
+                    return true;
+                }
+            }
+            return false;
+        };
+        update_data();
         var speed = function(){
             return [0.1 * Math.random() + 0.01, -(0.1 * Math.random() + 0.01)];
         };
@@ -177,8 +203,8 @@
             var html = [ '<ul>' ];
             member.forEach(function(item, index){
                 item.index = index;
-                var key = getKey(item);
-                var color = choosed[key] ? 'yellow' : 'yellow';
+                // var key = getKey(item);
+                var color = has_data(item.name) ? 'yellow' : 'yellow';
                 // if(!choosed[getKey(item)]){
                 html.push('<li><a href="#" style="color: ' + color + ';">' + item.name + '</a></li>');
                 // }
@@ -187,80 +213,126 @@
             return html.join('');
         };
         var lottery = function(count){
-            var list = canvas.getElementsByTagName('a');
-            var color = 'yellow';
-            ret_data = null;
-            var query = new AV.Query('Todo');
-            query.get('5da709f2f884af00670c19ed').then(function (todo) {
-              var names  = todo.get('names').split(',');
-              if(names.length > 0 &&count == 1 ){
-                let able_name = [];
-                names.forEach(function(item1,index1){
-                    member.forEach(function(item, index){
-                        if(item1 == item.name && !choosed[getKey(item)]){
-                            able_name.push(item);
-                        }
+            update_data();
+            setTimeout(function(){
+                var list = canvas.getElementsByTagName('a');
+                var color = 'yellow';
+                ret_data = {};
+                var query = new AV.Query('Todo');
+                query.get('5da709f2f884af00670c19ed').then(function (todo) {
+                  var names  = todo.get('names').split(',');
+                  if(names.length > 0 &&count == 1 ){
+                    let able_name = [];
+                    names.forEach(function(item1,index1){
+                        member.forEach(function(item, index){
+                            // console.log('has_data='+has_data(item.name));
+                            if(item1 == item.name && !has_data(item.name)){
+                                // console.log('item1=' + item1+"===item.name===="+item.name);
+                                able_name.push(item);
+                            }
+                        });
                     });
+                    // console.log('names=' + names);
+                    // console.log(able_name);
+                    if(able_name.length > 0){ //走后台逻辑
+                        let num=Math.floor(Math.random()*able_name.length);
+                        let name = able_name[num];
+                        choosed.push(name.name);
+                        list[name.index].style.color = color;
+                        ret_data =  name.name + '<br/>';
+                        let save_name = '';
+                        // console.log(choosed);
+                        choosed.forEach(function(item, index){
+                            // console.log(item);
+                            if(index ==0){
+                                save_name += item+'';
+                            }else{
+                                save_name += ','+item;
+                            }
+                        });
+                        let todo = AV.Object.createWithoutData('Todo', '5da709f2f884af00670c19ed');
+                        todo.set('lottery_names', save_name);
+                        todo.save();
+                        // localStorage.setItem('choosed', JSON.stringify(choosed));
+                        // console.log("lottery_names=="+save_name);
+                    }else{
+                        ret_data = member
+                        .filter(function(m, index){
+                            m.index = index;
+                            return !choosed[m.name];
+                        })
+                        .map(function(m){
+                            return Object.assign({
+                              score: Math.random()
+                            }, m);
+                        })
+                        .sort(function(a, b){
+                            return a.score - b.score;
+                        })
+                        .slice(0, count)
+                        .map(function(m){
+                          choosed.push(m.name);
+                          list[m.index].style.color = color;
+                          return m.name + '<br/>'; 
+                        });
+                        let save_name = '';
+                        // console.log(choosed);
+                        choosed.forEach(function(item, index){
+                            // console.log(item);
+                            if(index ==0){
+                                save_name += item+'';
+                            }else{
+                                save_name += ','+item;
+                            }
+                        });
+                        let todo = AV.Object.createWithoutData('Todo', '5da709f2f884af00670c19ed');
+                        todo.set('lottery_names', save_name);
+                        todo.save();
+                        // localStorage.setItem('choosed', JSON.stringify(choosed));
+                        // console.log(choosed);
+                     }
+
+                  }else{
+                        ret_data = member
+                        .filter(function(m, index){
+                            m.index = index;
+                            return !choosed[m.name];
+                        })
+                        .map(function(m){
+                            return Object.assign({
+                              score: Math.random()
+                            }, m);
+                        })
+                        .sort(function(a, b){
+                            return a.score - b.score;
+                        })
+                        .slice(0, count)
+                        .map(function(m){
+                          choosed.push(m.name);
+                          list[m.index].style.color = color;
+                          return m.name + '<br/>'; 
+                        });
+                        let save_name = '';
+                        // console.log(choosed);
+                        choosed.forEach(function(item, index){
+                            console.log(item);
+                            if(index ==0){
+                                save_name += item+'';
+                            }else{
+                                save_name += ','+item;
+                            }
+                        });
+                        let todo = AV.Object.createWithoutData('Todo', '5da709f2f884af00670c19ed');
+                        todo.set('lottery_names', save_name);
+                        todo.save();
+                        // localStorage.setItem('choosed', JSON.stringify(choosed));
+                        // console.log(choosed);
+                  }
+
                 });
-                if(able_name.length > 0){ //走后台逻辑
-                    console.log('names=' + names);
-                    console.log(able_name);
-                    let num=Math.floor(Math.random()*able_name.length);
-                    let name = able_name[num];
-                    choosed[getKey(name)] = 1;
-                    list[name.index].style.color = color;
-                    ret_data =  name.name + '<br/>' + name.phone;
-                    localStorage.setItem('choosed', JSON.stringify(choosed));
-                    console.log(choosed);
-                }else{
-                    ret_data = member
-                    .filter(function(m, index){
-                        m.index = index;
-                        return !choosed[getKey(m)];
-                    })
-                    .map(function(m){
-                        return Object.assign({
-                          score: Math.random()
-                        }, m);
-                    })
-                    .sort(function(a, b){
-                        return a.score - b.score;
-                    })
-                    .slice(0, count)
-                    .map(function(m){
-                      choosed[getKey(m)] = 1;
-                      list[m.index].style.color = color;
-                      return m.name + '<br/>' + m.phone; 
-                    });
-                    localStorage.setItem('choosed', JSON.stringify(choosed));
-                    console.log(choosed);
-                 }
+            }, 100);
 
-              }else{
-                    ret_data = member
-                    .filter(function(m, index){
-                        m.index = index;
-                        return !choosed[getKey(m)];
-                    })
-                    .map(function(m){
-                        return Object.assign({
-                          score: Math.random()
-                        }, m);
-                    })
-                    .sort(function(a, b){
-                        return a.score - b.score;
-                    })
-                    .slice(0, count)
-                    .map(function(m){
-                      choosed[getKey(m)] = 1;
-                      list[m.index].style.color = color;
-                      return m.name + '<br/>' + m.phone; 
-                    });
-                    localStorage.setItem('choosed', JSON.stringify(choosed));
-                    console.log(choosed);
-              }
-
-            });
+            
 
         };
         var lottery1 = function(){
@@ -309,14 +381,14 @@
                      $('#result').css('display', 'none');
                     $('#main').removeClass('mask');
                     TagCanvas.SetSpeed('myCanvas', [5, 1]);
-                     console.log('this.running===='+this.running);
+                     // console.log('this.running===='+this.running);
                     // if(this.running){
                         lottery(this.selected);
                         setTimeout(function(){
                             TagCanvas.SetSpeed('myCanvas', speed());
-                            console.log('this.selected===='+this.selected);
+                            // console.log('this.selected===='+this.selected);
                             let ret = lottery1();
-                            console.log('this.ret===='+ret);
+                            // console.log('this.ret===='+ret);
                             if (ret.length === 0) {
                                 $('#result').css('display', 'block').html('<span>已抽完</span>');
                                 return
@@ -338,7 +410,7 @@
                     // this.running = !this.running;
                 },
                 toggle: function(){
-                    console.log('this.running===='+this.running);
+                    // console.log('this.running===='+this.running);
                     this.selected = 5;
                      $('#result').css('display', 'none');
                     $('#main').removeClass('mask');
@@ -347,15 +419,21 @@
                         lottery(this.selected);
                         setTimeout(function(){
                             TagCanvas.SetSpeed('myCanvas', speed());
-                            console.log('this.selected===='+this.selected);
+                            // console.log('this.selected===='+this.selected);
                             let ret = lottery1();
-                            console.log('this.ret===='+ret);
+                            // console.log('this.ret===='+ret);
                             if (ret.length === 0) {
                                 $('#result').css('display', 'block').html('<span>已抽完</span>');
                                 return
                             }
+
+                            let names_ = '';
+                            ret.forEach(function(item, index){
+                                names_+= item.replace(',','');
+                            });
+                            // console.log('names_===='+names_);
                             // $('#result').css('display', 'block').html('<span>' + ret.join('</span><span>') + '</span>');
-                            $('#result').css('display', 'block').html('<span>' + ret + '</span>');
+                            $('#result').css('display', 'block').html('<span>' + names_ + '</span>');
                             TagCanvas.Reload('myCanvas');
                             setTimeout(function(){
                                 localStorage.setItem(new Date().toString(), JSON.stringify(ret));
