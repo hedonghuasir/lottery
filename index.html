@@ -154,7 +154,8 @@
         :class="{'pure-button': true">{'抽1次'}}</button>-->
     <button class="pure-button button-secondary" @click="onClick" >抽一次</button>
     <button class="pure-button button-secondary" @click="toggle" >抽五次</button>
-    <!-- <button class="pure-button button-warning" @click="reset">重置</button> -->
+    <button id="clean_btn" class="pure-button button-warning" @click="clean" >关闭</button>
+        <!-- <button class="pure-button button-warning" @click="reset">重置</button> -->
 </div>
 <script type="text/javascript" src="js/zepto.js"></script>
 <script type="text/javascript" src="js/vue.js"></script>
@@ -168,6 +169,8 @@
         // var choosed = JSON.parse(localStorage.getItem('choosed')) || {};
         var choosed = [];
         var ret_data = {};
+        let clean_btn = document.getElementById("clean_btn");
+        clean_btn.style.display = 'none';
         var update_data = function(){
             choosed = [];
             let query = new AV.Query('Todo');
@@ -376,6 +379,12 @@
                         location.reload(true);
                     }
                 },
+                clean: function(){
+                    $('#result').css('display', 'none');
+                    $('#main').removeClass('mask');
+                    let clean_btn = document.getElementById("clean_btn");
+                    clean_btn.style.display = 'none';
+                },
                 onClick: function(num){
                     this.selected = 1;
                      $('#result').css('display', 'none');
@@ -395,6 +404,8 @@
                             }
                             // $('#result').css('display', 'block').html('<span>' + ret.join('</span><span>') + '</span>');
                             $('#result').css('display', 'block').html('<span>' + ret + '</span>');
+                            let clean_btn = document.getElementById("clean_btn");
+                            clean_btn.style.display = 'inline-block';
                             TagCanvas.Reload('myCanvas');
                             setTimeout(function(){
                                 localStorage.setItem(new Date().toString(), JSON.stringify(ret));
@@ -434,6 +445,8 @@
                             // console.log('names_===='+names_);
                             // $('#result').css('display', 'block').html('<span>' + ret.join('</span><span>') + '</span>');
                             $('#result').css('display', 'block').html('<span>' + names_ + '</span>');
+                            let clean_btn = document.getElementById("clean_btn");
+                            clean_btn.style.display = 'inline-block';
                             TagCanvas.Reload('myCanvas');
                             setTimeout(function(){
                                 localStorage.setItem(new Date().toString(), JSON.stringify(ret));
